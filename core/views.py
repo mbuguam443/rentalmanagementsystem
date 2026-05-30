@@ -483,10 +483,15 @@ from .daraja import stk_push
 def mpesa_list(request):
     transactions = MpesaTransaction.objects.all()
     tenants = Tenant.objects.annotate(
-        total_owed=Sum('leases__rent_amount', filter=Q(leases__status='active')),
+        _owed=Sum('leases__rent_amount', filter=Q(leases__status='active')),
+        _paid=Sum('payments__amount', filter=Q(payments__status='paid')),
         total_paid_c2b=Sum('payments__amount', filter=Q(payments__method='M-Pesa', payments__status='paid')),
         lease_count=Count('leases', filter=Q(leases__status='active')),
     )
+    for t in tenants:
+        t.total_owed = t._owed or 0
+        t.total_paid = t._paid or 0
+        t.balance = (t._owed or 0) - (t._paid or 0)
     return render(request, 'core/mpesa/list.html', {
         'transactions': transactions,
         'tenants': tenants,

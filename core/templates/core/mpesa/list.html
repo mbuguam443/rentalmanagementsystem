@@ -42,7 +42,17 @@
                         <td>{% if t.lease_count %}<span class="text-success">Active{% else %}—{% endif %}</td>
                         <td>{% if t.total_owed %}KSh {{ t.total_owed|floatformat:0 }}{% else %}—{% endif %}</td>
                         <td>{% if t.total_paid_c2b %}KSh {{ t.total_paid_c2b|floatformat:0 }}{% else %}—{% endif %}</td>
-                        <td>{% if t.total_owed %}KSh {{ t.total_owed|floatformat:0 }}{% else %}—{% endif %}</td>
+                        <td>
+                            {% if t.total_owed %}
+                                {% if t.balance > 0 %}
+                                    <span class="text-warning">KSh {{ t.balance|floatformat:0 }}</span>
+                                {% elif t.balance == 0 %}
+                                    <span class="text-success">KSh 0</span>
+                                {% else %}
+                                    <span class="text-info">KSh {{ t.balance|floatformat:0 }}</span>
+                                {% endif %}
+                            {% else %}—{% endif %}
+                        </td>
                     </tr>
                     {% empty %}
                     <tr><td colspan="6" class="text-muted">No active tenants</td></tr>
