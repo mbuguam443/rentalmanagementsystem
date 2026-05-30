@@ -58,6 +58,9 @@ urlpatterns = [
     path('api/c2b/validation/', views.mpesa_c2b_validation, name='c2b_validation'),
     path('api/c2b/confirmation/', views.mpesa_c2b_confirmation, name='c2b_confirmation'),
 
+    # Cron (called by cron-job.org or similar for monthly rent)
+    path('api/cron/monthly-rent/<str:token>/', views.cron_monthly_rent, name='cron_monthly_rent'),
+
     # Reports
     path('reports/', views.reports, name='reports'),
 ]

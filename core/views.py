@@ -831,3 +831,23 @@ def reports(request):
         'total_maintenance_cost': total_maintenance_cost,
         'properties': properties,
     })
+
+
+from django.core.management import call_command
+from io import StringIO
+
+
+@csrf_exempt
+def cron_monthly_rent(request, token):
+    if token != settings.CRON_SECRET:
+        return JsonResponse({'error': 'Invalid token'}, status=403)
+    if request.method != 'POST':
+        return JsonResponse({'error': 'POST required'}, status=405)
+    out = StringIO()
+    err = StringIO()
+    call_command('monthly_rent', stdout=out, stderr=err)
+    return JsonResponse({
+        'status': 'ok',
+        'output': out.getvalue(),
+        'errors': err.getvalue(),
+    })

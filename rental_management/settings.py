@@ -92,3 +92,16 @@ DARAJA_C2B_SHORTCODE = os.environ.get('DARAJA_C2B_SHORTCODE', '600000')
 DARAJA_C2B_RESPONSE_TYPE = os.environ.get('DARAJA_C2B_RESPONSE_TYPE', 'Completed')
 DARAJA_C2B_CONFIRMATION_URL = os.environ.get('DARAJA_C2B_CONFIRMATION_URL', 'https://rental-system-hxij.onrender.com/api/c2b/confirmation/')
 DARAJA_C2B_VALIDATION_URL = os.environ.get('DARAJA_C2B_VALIDATION_URL', 'https://rental-system-hxij.onrender.com/api/c2b/validation/')
+
+CRON_SECRET = os.environ.get('CRON_SECRET', 'change-me-in-production')
+
+EMAIL_BACKEND = os.environ.get('EMAIL_BACKEND', 'django.core.mail.backends.console.EmailBackend')
+EMAIL_HOST = os.environ.get('EMAIL_HOST', 'smtp.gmail.com')
+EMAIL_PORT = int(os.environ.get('EMAIL_PORT', 587))
+EMAIL_USE_TLS = os.environ.get('EMAIL_USE_TLS', 'True').lower() == 'true'
+EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', '')
+EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', '')
+
+AT_USERNAME = os.environ.get('AT_USERNAME', 'sandbox')
+AT_API_KEY = os.environ.get('AT_API_KEY', '')
+AT_SANDBOX = os.environ.get('AT_SANDBOX', 'True').lower() == 'true'
