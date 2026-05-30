@@ -84,6 +84,19 @@ class Lease(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    def months_elapsed(self, as_of=None):
+        if as_of is None:
+            from django.utils import timezone
+            as_of = timezone.now().date()
+        end = min(self.end_date, as_of) if self.end_date else as_of
+        months = (end.year - self.start_date.year) * 12 + (end.month - self.start_date.month)
+        if end.day >= self.start_date.day:
+            months += 1
+        return max(0, months)
+
+    def expected_total_rent(self, as_of=None):
+        return self.months_elapsed(as_of) * self.rent_amount
+
     def __str__(self):
         return f"{self.tenant.name} - {self.property.name}"
 

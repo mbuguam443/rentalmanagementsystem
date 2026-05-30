@@ -57,6 +57,18 @@
                     <h6>KSh {{ active_lease.rent_amount|floatformat:2 }}</h6>
                 </div>
                 <div class="mb-3">
+                    <p class="mb-1 text-muted">Months Elapsed</p>
+                    <h6>{{ active_lease.months_elapsed }}</h6>
+                </div>
+                <div class="mb-3">
+                    <p class="mb-1 text-muted">Expected Total</p>
+                    <h6>KSh {{ active_lease.expected_total_rent|floatformat:2 }}</h6>
+                </div>
+                <div class="mb-3">
+                    <p class="mb-1 text-muted">Total Paid</p>
+                    <h6 class="text-success">KSh {{ total_paid|floatformat:2 }}</h6>
+                </div>
+                <div class="mb-3">
                     <p class="mb-1 text-muted">Balance</p>
                     <h6 class="{% if balance > 0 %}text-danger{% else %}text-success{% endif %}">
                         KSh {{ balance|floatformat:2 }}

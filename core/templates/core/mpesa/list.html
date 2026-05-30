@@ -29,7 +29,8 @@
                         <th>Tenant</th>
                         <th>Phone (Account No.)</th>
                         <th>Active Lease</th>
-                        <th>Rent Amount</th>
+                        <th>Monthly Rent</th>
+                        <th>Expected Total</th>
                         <th>M-Pesa Paid</th>
                         <th>Balance</th>
                     </tr>
@@ -40,6 +41,7 @@
                         <td>{{ t.name }}</td>
                         <td><code class="text-info bg-dark p-1 rounded">{{ t.phone }}</code></td>
                         <td>{% if t.lease_count %}<span class="text-success">Active{% else %}—{% endif %}</td>
+                        <td>{% if t.monthly_rent %}KSh {{ t.monthly_rent|floatformat:0 }}{% else %}—{% endif %}</td>
                         <td>{% if t.total_owed %}KSh {{ t.total_owed|floatformat:0 }}{% else %}—{% endif %}</td>
                         <td>{% if t.total_paid_c2b %}KSh {{ t.total_paid_c2b|floatformat:0 }}{% else %}—{% endif %}</td>
                         <td>
@@ -55,7 +57,7 @@
                         </td>
                     </tr>
                     {% empty %}
-                    <tr><td colspan="6" class="text-muted">No active tenants</td></tr>
+                    <tr><td colspan="7" class="text-muted">No active tenants</td></tr>
                     {% endfor %}
                 </tbody>
             </table>

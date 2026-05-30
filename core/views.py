@@ -3,6 +3,7 @@ import string
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.db import models
 from django.db.models import Sum, Count, Q
 from django.utils import timezone
 from datetime import datetime, timedelta
@@ -194,17 +195,17 @@ def tenant_view(request, pk):
     leases = tenant.leases.all()
     payments = tenant.payments.all()
     maintenance_requests = tenant.maintenance_requests.all()
-    active_lease = tenant.leases.filter(status='active').first()
-    balance = Decimal(0)
-    if active_lease:
-        total_paid = tenant.payments.filter(status__in=['paid', 'partial']).aggregate(Sum('amount'))['amount__sum'] or 0
-        balance = active_lease.rent_amount - total_paid
+    active_leases = tenant.leases.filter(status='active')
+    total_paid = tenant.payments.filter(status__in=['paid', 'partial']).aggregate(Sum('amount'))['amount__sum'] or 0
+    total_expected = sum(l.expected_total_rent() for l in active_leases)
+    balance = total_expected - total_paid
     return render(request, 'core/tenants/view.html', {
         'tenant': tenant,
         'leases': leases,
         'payments': payments,
         'maintenance_requests': maintenance_requests,
-        'active_lease': active_lease,
+        'active_lease': active_leases.first(),
+        'total_paid': total_paid,
         'balance': balance,
     })
 
@@ -483,15 +484,17 @@ from .daraja import stk_push
 def mpesa_list(request):
     transactions = MpesaTransaction.objects.all()
     tenants = Tenant.objects.annotate(
-        _owed=Sum('leases__rent_amount', filter=Q(leases__status='active')),
         _paid=Sum('payments__amount', filter=Q(payments__status='paid')),
         total_paid_c2b=Sum('payments__amount', filter=Q(payments__method='M-Pesa', payments__status='paid')),
         lease_count=Count('leases', filter=Q(leases__status='active')),
+    ).prefetch_related(
+        models.Prefetch('leases', queryset=Lease.objects.filter(status='active'), to_attr='active_leases')
     )
     for t in tenants:
-        t.total_owed = t._owed or 0
         t.total_paid = t._paid or 0
-        t.balance = (t._owed or 0) - (t._paid or 0)
+        t.monthly_rent = sum(l.rent_amount for l in t.active_leases)
+        t.total_owed = sum(l.expected_total_rent() for l in t.active_leases)
+        t.balance = t.total_owed - t.total_paid
     return render(request, 'core/mpesa/list.html', {
         'transactions': transactions,
         'tenants': tenants,
