@@ -1,0 +1,199 @@
+{% extends 'core/base.html' %}
+{% load static %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+<div class="container-fluid pt-4 px-4">
+    <div class="row g-4">
+        <div class="col-sm-6 col-xl-3">
+            <div class="bg-secondary rounded d-flex align-items-center justify-content-between p-4">
+                <i class="fa fa-home fa-3x text-primary"></i>
+                <div class="ms-3 text-end">
+                    <p class="mb-2">Properties</p>
+                    <h6 class="mb-0">{{ total_properties }} <small class="text-muted">({{ occupied }} occ)</small></h6>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-xl-3">
+            <div class="bg-secondary rounded d-flex align-items-center justify-content-between p-4">
+                <i class="fa fa-users fa-3x text-primary"></i>
+                <div class="ms-3 text-end">
+                    <p class="mb-2">Active Tenants</p>
+                    <h6 class="mb-0">{{ total_tenants }}</h6>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-xl-3">
+            <div class="bg-secondary rounded d-flex align-items-center justify-content-between p-4">
+                <i class="fa fa-money-bill-wave fa-3x text-primary"></i>
+                <div class="ms-3 text-end">
+                    <p class="mb-2">Total Collected</p>
+                    <h6 class="mb-0">KSh {{ total_collected|floatformat:0 }}</h6>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-xl-3">
+            <div class="bg-secondary rounded d-flex align-items-center justify-content-between p-4">
+                <i class="fa fa-tools fa-3x text-primary"></i>
+                <div class="ms-3 text-end">
+                    <p class="mb-2">Open Issues</p>
+                    <h6 class="mb-0">{{ open_maintenance }}</h6>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container-fluid pt-4 px-4">
+    <div class="row g-4">
+        <div class="col-sm-12 col-xl-6">
+            <div class="bg-secondary text-center rounded p-4">
+                <div class="d-flex align-items-center justify-content-between mb-4">
+                    <h6 class="mb-0">Monthly Revenue</h6>
+                </div>
+                <canvas id="revenue-line-chart" height="200"></canvas>
+            </div>
+        </div>
+        <div class="col-sm-12 col-xl-6">
+            <div class="bg-secondary text-center rounded p-4">
+                <div class="d-flex align-items-center justify-content-between mb-4">
+                    <h6 class="mb-0">Revenue by Property</h6>
+                </div>
+                <canvas id="property-bar-chart" height="200"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container-fluid pt-4 px-4">
+    <div class="row g-4">
+        <div class="col-sm-12 col-xl-6">
+            <div class="bg-secondary text-center rounded p-4">
+                <div class="d-flex align-items-center justify-content-between mb-4">
+                    <h6 class="mb-0">Recent Payments</h6>
+                    <a href="{% url 'payment_list' %}">Show All</a>
+                </div>
+                <div class="table-responsive">
+                    <table class="table text-start align-middle table-bordered table-hover mb-0">
+                        <thead>
+                            <tr class="text-white">
+                                <th>Tenant</th>
+                                <th>Amount</th>
+                                <th>Date</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for p in recent_payments %}
+                            <tr>
+                                <td>{{ p.tenant.name }}</td>
+                                <td>KSh {{ p.amount|floatformat:0 }}</td>
+                                <td>{{ p.payment_date }}</td>
+                                <td><span class="badge bg-{% if p.status == 'paid' %}success{% elif p.status == 'overdue' %}danger{% else %}warning{% endif %}">{{ p.get_status_display }}</span></td>
+                            </tr>
+                            {% empty %}
+                            <tr><td colspan="4" class="text-muted">No payments recorded yet</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-12 col-xl-6">
+            <div class="bg-secondary text-center rounded p-4">
+                <div class="d-flex align-items-center justify-content-between mb-4">
+                    <h6 class="mb-0">Recent Maintenance</h6>
+                    <a href="{% url 'maintenance_list' %}">Show All</a>
+                </div>
+                <div class="table-responsive">
+                    <table class="table text-start align-middle table-bordered table-hover mb-0">
+                        <thead>
+                            <tr class="text-white">
+                                <th>Title</th>
+                                <th>Priority</th>
+                                <th>Status</th>
+                                <th>Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for m in recent_maintenance %}
+                            <tr>
+                                <td>{{ m.title }}</td>
+                                <td><span class="badge bg-{% if m.priority == 'high' or m.priority == 'urgent' %}danger{% elif m.priority == 'medium' %}warning{% else %}info{% endif %}">{{ m.get_priority_display }}</span></td>
+                                <td><span class="badge bg-{% if m.status == 'open' %}info{% elif m.status == 'in_progress' %}warning{% elif m.status == 'resolved' %}success{% else %}secondary{% endif %}">{{ m.get_status_display }}</span></td>
+                                <td>{{ m.created_at|date:"M j, Y" }}</td>
+                            </tr>
+                            {% empty %}
+                            <tr><td colspan="4" class="text-muted">No maintenance requests</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const primary = 'rgba(235, 22, 22, .8)';
+const primaryLight = 'rgba(235, 22, 22, .2)';
+const gridColor = 'rgba(255,255,255,.05)';
+
+var ctx1 = document.getElementById('revenue-line-chart').getContext('2d');
+new Chart(ctx1, {
+    type: 'line',
+    data: {
+        labels: [{% for l in monthly_labels %}'{{ l }}'{% if not forloop.last %},{% endif %}{% endfor %}],
+        datasets: [{
+            label: 'Revenue (KSh)',
+            data: [{% for d in monthly_data %}{{ d }}{% if not forloop.last %},{% endif %}{% endfor %}],
+            borderColor: primary,
+            backgroundColor: primaryLight,
+            fill: true,
+            tension: .4,
+            pointBackgroundColor: primary,
+            pointBorderColor: '#fff',
+            pointBorderWidth: 2,
+            pointRadius: 4,
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            legend: { labels: { color: '#ccc' } }
+        },
+        scales: {
+            x: { ticks: { color: '#6c7293' }, grid: { color: gridColor } },
+            y: { ticks: { color: '#6c7293', callback: function(v) { return 'KSh ' + v.toLocaleString(); } }, grid: { color: gridColor } }
+        }
+    }
+});
+
+var ctx2 = document.getElementById('property-bar-chart').getContext('2d');
+new Chart(ctx2, {
+    type: 'bar',
+    data: {
+        labels: [{% for n in prop_names %}'{{ n }}'{% if not forloop.last %},{% endif %}{% endfor %}],
+        datasets: [{
+            label: 'Revenue (KSh)',
+            data: [{% for r in prop_revenue %}{{ r }}{% if not forloop.last %},{% endif %}{% endfor %}],
+            backgroundColor: primary,
+            borderColor: primary,
+            borderWidth: 1,
+            borderRadius: 4,
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            legend: { labels: { color: '#ccc' } }
+        },
+        scales: {
+            x: { ticks: { color: '#6c7293' }, grid: { color: gridColor } },
+            y: { ticks: { color: '#6c7293', callback: function(v) { return 'KSh ' + v.toLocaleString(); } }, grid: { color: gridColor } }
+        }
+    }
+});
+</script>
+{% endblock %}

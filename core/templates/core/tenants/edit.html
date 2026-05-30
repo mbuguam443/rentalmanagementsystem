@@ -1,0 +1,71 @@
+{% extends 'core/base.html' %}
+{% block title %}Edit Tenant{% endblock %}
+{% block content %}
+<div class="container-fluid pt-4 px-4">
+    <div class="row g-4">
+        <div class="col-sm-12 col-xl-8 mx-auto">
+            <div class="bg-secondary rounded h-100 p-4">
+                <h6 class="mb-4">Edit Tenant: {{ tenant.name }}</h6>
+                <form method="POST">
+                    {% csrf_token %}
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Full Name</label>
+                            <input type="text" class="form-control" name="name" value="{{ tenant.name }}" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Email</label>
+                            <input type="email" class="form-control" name="email" value="{{ tenant.email }}" required>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Phone</label>
+                            <input type="text" class="form-control" name="phone" value="{{ tenant.phone }}" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">ID Number</label>
+                            <input type="text" class="form-control" name="id_number" value="{{ tenant.id_number }}">
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Occupation</label>
+                            <input type="text" class="form-control" name="occupation" value="{{ tenant.occupation }}">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Address</label>
+                            <input type="text" class="form-control" name="address" value="{{ tenant.address }}">
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Emergency Contact Name</label>
+                            <input type="text" class="form-control" name="emergency_name" value="{{ tenant.emergency_name }}">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Emergency Contact Phone</label>
+                            <input type="text" class="form-control" name="emergency_contact" value="{{ tenant.emergency_contact }}">
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Status</label>
+                            <select class="form-select" name="status">
+                                <option value="active" {% if tenant.status == 'active' %}selected{% endif %}>Active</option>
+                                <option value="inactive" {% if tenant.status == 'inactive' %}selected{% endif %}>Inactive</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Notes</label>
+                        <textarea class="form-control" name="notes" rows="3">{{ tenant.notes }}</textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Update Tenant</button>
+                    <a href="{% url 'tenant_list' %}" class="btn btn-secondary">Cancel</a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

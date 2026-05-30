@@ -1,0 +1,48 @@
+{% extends 'core/base.html' %}
+{% block title %}Tenants{% endblock %}
+{% block content %}
+<div class="container-fluid pt-4 px-4">
+    <div class="bg-secondary text-center rounded p-4">
+        <div class="d-flex align-items-center justify-content-between mb-4">
+            <h6 class="mb-0">All Tenants</h6>
+            <a href="{% url 'tenant_add' %}" class="btn btn-primary btn-sm"><i class="fa fa-plus me-2"></i>Add Tenant</a>
+        </div>
+        <form class="d-flex mb-3" method="GET">
+            <input class="form-control bg-dark border-0 flex-grow-1" type="search" name="q" placeholder="Search tenants..." value="{{ request.GET.q }}">
+            <button class="btn btn-primary ms-2" type="submit"><i class="fa fa-search"></i></button>
+        </form>
+        <div class="table-responsive">
+            <table class="table text-start align-middle table-bordered table-hover mb-0">
+                <thead>
+                    <tr class="text-white">
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Phone</th>
+                        <th>Occupation</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for t in tenants %}
+                    <tr>
+                        <td>{{ t.name }}</td>
+                        <td>{{ t.email }}</td>
+                        <td>{{ t.phone }}</td>
+                        <td>{{ t.occupation|default:'-' }}</td>
+                        <td><span class="badge bg-{% if t.status == 'active' %}success{% else %}secondary{% endif %}">{{ t.get_status_display }}</span></td>
+                        <td>
+                            <a class="btn btn-sm btn-primary" href="{% url 'tenant_view' t.pk %}">View</a>
+                            <a class="btn btn-sm btn-info" href="{% url 'tenant_edit' t.pk %}">Edit</a>
+                            <a class="btn btn-sm btn-danger" href="{% url 'tenant_delete' t.pk %}" onclick="return confirm('Delete this tenant?')">Delete</a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="6" class="text-muted">No tenants found</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

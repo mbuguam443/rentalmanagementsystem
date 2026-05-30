@@ -1,0 +1,69 @@
+{% extends 'core/base.html' %}
+{% block title %}Simulate C2B Payment{% endblock %}
+{% block content %}
+<div class="container-fluid pt-4 px-4">
+    <div class="row g-4">
+        <div class="col-sm-12 col-xl-8 mx-auto">
+            <div class="bg-secondary rounded h-100 p-4">
+                <h6 class="mb-4"><i class="fa fa-cloud-upload-alt me-2"></i>C2B API Simulation</h6>
+
+                <p class="text-success small mb-3">
+                    Calls Safaricom's sandbox simulate endpoint + fires the callback locally.
+                    Your confirmation URL:
+                    <code class="text-light bg-dark px-1">{{ api_confirmation_url }}</code>
+                </p>
+
+                <form method="POST" action="{% url 'mpesa_c2b_simulate_api' %}">
+                    {% csrf_token %}
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Amount (KSh)</label>
+                            <input type="number" class="form-control" name="amount" step="0.01" min="1" value="5000" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Phone (MSISDN)</label>
+                            <input type="text" class="form-control" name="phone" value="254708374149" required>
+                            <div class="form-text text-muted">Use 254708374149 (auto-accepts in sandbox)</div>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Account No. (BillRefNumber)</label>
+                        <input type="text" class="form-control" name="account" value="254712345678" required>
+                        <div class="form-text text-muted">
+                            The tenant enters this on M-Pesa. Use an existing tenant's phone to auto-link the payment.
+                        </div>
+                    </div>
+
+                    <hr>
+                    <p class="text-muted small mb-3">Or pick an existing tenant to auto-fill:</p>
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <select class="form-select" id="c2b-tenant-select">
+                                <option value="">— Select Tenant —</option>
+                                {% for t in tenants %}
+                                <option value="{{ t.phone }}" data-name="{{ t.name }}">{{ t.name }} ({{ t.phone }})</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-success">
+                        <i class="fa fa-cloud-upload-alt me-2"></i>Simulate via API
+                    </button>
+                    <a href="{% url 'mpesa_list' %}" class="btn btn-secondary">Back</a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+$('#c2b-tenant-select').change(function() {
+    var phone = $(this).val();
+    if (phone) {
+        $('input[name="phone"]').val(phone);
+        $('input[name="account"]').val(phone);
+    }
+});
+</script>
+{% endblock %}

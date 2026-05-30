@@ -1,0 +1,89 @@
+{% extends 'core/base.html' %}
+{% block title %}Edit Payment{% endblock %}
+{% block content %}
+<div class="container-fluid pt-4 px-4">
+    <div class="row g-4">
+        <div class="col-sm-12 col-xl-8 mx-auto">
+            <div class="bg-secondary rounded h-100 p-4">
+                <h6 class="mb-4">Edit Payment</h6>
+                <form method="POST">
+                    {% csrf_token %}
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Tenant</label>
+                            <select class="form-select" name="tenant" required>
+                                {% for t in tenants %}
+                                <option value="{{ t.pk }}" {% if payment.tenant.pk == t.pk %}selected{% endif %}>{{ t.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Property</label>
+                            <select class="form-select" name="property" required>
+                                {% for p in properties %}
+                                <option value="{{ p.pk }}" {% if payment.property.pk == p.pk %}selected{% endif %}>{{ p.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <label class="form-label">Amount (KSh)</label>
+                            <input type="number" class="form-control" name="amount" value="{{ payment.amount }}" step="0.01" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Payment Type</label>
+                            <select class="form-select" name="payment_type">
+                                <option value="rent" {% if payment.payment_type == 'rent' %}selected{% endif %}>Rent</option>
+                                <option value="deposit" {% if payment.payment_type == 'deposit' %}selected{% endif %}>Deposit</option>
+                                <option value="late_fee" {% if payment.payment_type == 'late_fee' %}selected{% endif %}>Late Fee</option>
+                                <option value="other" {% if payment.payment_type == 'other' %}selected{% endif %}>Other</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Status</label>
+                            <select class="form-select" name="status">
+                                <option value="paid" {% if payment.status == 'paid' %}selected{% endif %}>Paid</option>
+                                <option value="partial" {% if payment.status == 'partial' %}selected{% endif %}>Partial</option>
+                                <option value="overdue" {% if payment.status == 'overdue' %}selected{% endif %}>Overdue</option>
+                                <option value="pending" {% if payment.status == 'pending' %}selected{% endif %}>Pending</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Payment Date</label>
+                            <input type="date" class="form-control" name="payment_date" value="{{ payment.payment_date|date:'Y-m-d' }}" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Due Date</label>
+                            <input type="date" class="form-control" name="due_date" value="{{ payment.due_date|date:'Y-m-d' }}" required>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <label class="form-label">Method</label>
+                            <select class="form-select" name="method">
+                                <option value="M-Pesa" {% if payment.method == 'M-Pesa' %}selected{% endif %}>M-Pesa</option>
+                                <option value="Bank Transfer" {% if payment.method == 'Bank Transfer' %}selected{% endif %}>Bank Transfer</option>
+                                <option value="Cash" {% if payment.method == 'Cash' %}selected{% endif %}>Cash</option>
+                                <option value="Cheque" {% if payment.method == 'Cheque' %}selected{% endif %}>Cheque</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Reference</label>
+                            <input type="text" class="form-control" name="reference" value="{{ payment.reference }}">
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Notes</label>
+                        <textarea class="form-control" name="notes" rows="2">{{ payment.notes }}</textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Update Payment</button>
+                    <a href="{% url 'payment_list' %}" class="btn btn-secondary">Cancel</a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

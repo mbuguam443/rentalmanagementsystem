@@ -1,0 +1,90 @@
+{% extends 'core/base.html' %}
+{% block title %}Record Payment{% endblock %}
+{% block content %}
+<div class="container-fluid pt-4 px-4">
+    <div class="row g-4">
+        <div class="col-sm-12 col-xl-8 mx-auto">
+            <div class="bg-secondary rounded h-100 p-4">
+                <h6 class="mb-4">Record New Payment</h6>
+                <form method="POST">
+                    {% csrf_token %}
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Tenant</label>
+                            <select class="form-select" name="tenant" required>
+                                <option value="">Select Tenant</option>
+                                {% for t in tenants %}
+                                <option value="{{ t.pk }}">{{ t.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Property</label>
+                            <select class="form-select" name="property" required>
+                                <option value="">Select Property</option>
+                                {% for p in properties %}
+                                <option value="{{ p.pk }}">{{ p.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Amount (KSh)</label>
+                            <input type="number" class="form-control" name="amount" step="0.01" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Payment Type</label>
+                            <select class="form-select" name="payment_type">
+                                <option value="rent">Rent</option>
+                                <option value="deposit">Deposit</option>
+                                <option value="late_fee">Late Fee</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Payment Date</label>
+                            <input type="date" class="form-control" name="payment_date" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Due Date</label>
+                            <input type="date" class="form-control" name="due_date" required>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <label class="form-label">Payment Method</label>
+                            <select class="form-select" name="method">
+                                <option value="M-Pesa">M-Pesa</option>
+                                <option value="Bank Transfer">Bank Transfer</option>
+                                <option value="Cash">Cash</option>
+                                <option value="Cheque">Cheque</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Reference</label>
+                            <input type="text" class="form-control" name="reference">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Status</label>
+                            <select class="form-select" name="status">
+                                <option value="paid">Paid</option>
+                                <option value="partial">Partial</option>
+                                <option value="pending">Pending</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Notes</label>
+                        <textarea class="form-control" name="notes" rows="2"></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Record Payment</button>
+                    <a href="{% url 'payment_list' %}" class="btn btn-secondary">Cancel</a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

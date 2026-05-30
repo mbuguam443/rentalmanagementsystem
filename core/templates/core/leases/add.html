@@ -1,0 +1,62 @@
+{% extends 'core/base.html' %}
+{% block title %}Create Lease{% endblock %}
+{% block content %}
+<div class="container-fluid pt-4 px-4">
+    <div class="row g-4">
+        <div class="col-sm-12 col-xl-8 mx-auto">
+            <div class="bg-secondary rounded h-100 p-4">
+                <h6 class="mb-4">Create New Lease</h6>
+                <form method="POST">
+                    {% csrf_token %}
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Property</label>
+                            <select class="form-select" name="property" required>
+                                <option value="">Select Property</option>
+                                {% for p in properties %}
+                                <option value="{{ p.pk }}" {% if request.GET.property == p.pk|stringformat:'i' %}selected{% endif %}>{{ p.name }} - KSh {{ p.rent_amount|floatformat:0 }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Tenant</label>
+                            <select class="form-select" name="tenant" required>
+                                <option value="">Select Tenant</option>
+                                {% for t in tenants %}
+                                <option value="{{ t.pk }}" {% if request.GET.tenant == t.pk|stringformat:'i' %}selected{% endif %}>{{ t.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Start Date</label>
+                            <input type="date" class="form-control" name="start_date" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">End Date</label>
+                            <input type="date" class="form-control" name="end_date" required>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Rent Amount (KSh)</label>
+                            <input type="number" class="form-control" name="rent_amount" step="0.01" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Deposit Paid (KSh)</label>
+                            <input type="number" class="form-control" name="deposit_paid" step="0.01" value="0">
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Terms & Conditions</label>
+                        <textarea class="form-control" name="terms" rows="4" placeholder="e.g. Monthly rent due on/before 5th. Late fee applies."></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Create Lease</button>
+                    <a href="{% url 'lease_list' %}" class="btn btn-secondary">Cancel</a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

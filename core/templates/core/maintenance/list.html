@@ -1,0 +1,56 @@
+{% extends 'core/base.html' %}
+{% block title %}Maintenance{% endblock %}
+{% block content %}
+<div class="container-fluid pt-4 px-4">
+    <div class="bg-secondary text-center rounded p-4">
+        <div class="d-flex align-items-center justify-content-between mb-4">
+            <h6 class="mb-0">Maintenance Requests</h6>
+            <a href="{% url 'maintenance_add' %}" class="btn btn-primary btn-sm"><i class="fa fa-plus me-2"></i>New Request</a>
+        </div>
+        <form class="d-flex mb-3 gap-2" method="GET">
+            <input class="form-control bg-dark border-0 flex-grow-1" type="search" name="q" placeholder="Search..." value="{{ request.GET.q }}">
+            <select name="status" class="form-select bg-dark border-0 w-auto">
+                <option value="">All Status</option>
+                <option value="open" {% if request.GET.status == 'open' %}selected{% endif %}>Open</option>
+                <option value="in_progress" {% if request.GET.status == 'in_progress' %}selected{% endif %}>In Progress</option>
+                <option value="resolved" {% if request.GET.status == 'resolved' %}selected{% endif %}>Resolved</option>
+                <option value="cancelled" {% if request.GET.status == 'cancelled' %}selected{% endif %}>Cancelled</option>
+            </select>
+            <button class="btn btn-primary" type="submit"><i class="fa fa-search"></i></button>
+        </form>
+        <div class="table-responsive">
+            <table class="table text-start align-middle table-bordered table-hover mb-0">
+                <thead>
+                    <tr class="text-white">
+                        <th>Title</th>
+                        <th>Property</th>
+                        <th>Tenant</th>
+                        <th>Priority</th>
+                        <th>Status</th>
+                        <th>Date</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for m in maintenance_list %}
+                    <tr>
+                        <td>{{ m.title }}</td>
+                        <td>{{ m.property.name|truncatechars:20 }}</td>
+                        <td>{{ m.tenant.name|default:'-' }}</td>
+                        <td><span class="badge bg-{% if m.priority == 'urgent' %}danger{% elif m.priority == 'high' %}warning{% elif m.priority == 'medium' %}info{% else %}secondary{% endif %}">{{ m.get_priority_display }}</span></td>
+                        <td><span class="badge bg-{% if m.status == 'open' %}info{% elif m.status == 'in_progress' %}warning{% elif m.status == 'resolved' %}success{% else %}secondary{% endif %}">{{ m.get_status_display }}</span></td>
+                        <td>{{ m.created_at|date:"M j, Y" }}</td>
+                        <td>
+                            <a class="btn btn-sm btn-info" href="{% url 'maintenance_edit' m.pk %}">Edit</a>
+                            <a class="btn btn-sm btn-danger" href="{% url 'maintenance_delete' m.pk %}" onclick="return confirm('Delete this request?')">Delete</a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="7" class="text-muted">No maintenance requests</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

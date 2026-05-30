@@ -1,0 +1,62 @@
+{% load static %}
+<nav class="navbar navbar-expand bg-secondary navbar-dark sticky-top px-4 py-0">
+    <a href="{% url 'dashboard' %}" class="navbar-brand d-flex d-lg-none me-4">
+        <h2 class="text-primary mb-0"><i class="fa fa-building"></i></h2>
+    </a>
+    <a href="#" class="sidebar-toggler flex-shrink-0">
+        <i class="fa fa-bars"></i>
+    </a>
+    <form class="d-none d-md-flex ms-4" method="GET" action="{% url 'property_list' %}">
+        <input class="form-control bg-dark border-0" type="search" name="q" placeholder="Search properties...">
+    </form>
+    <div class="navbar-nav align-items-center ms-auto">
+        <div class="nav-item dropdown">
+            <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
+                <span class="position-relative">
+                    <i class="fa fa-bell me-lg-2"></i>
+                    {% if notif_total > 0 %}
+                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 8px;">{{ notif_total }}</span>
+                    {% endif %}
+                </span>
+                <span class="d-none d-lg-inline-flex">Notifications</span>
+            </a>
+            <div class="dropdown-menu dropdown-menu-end bg-secondary border-0 rounded-0 rounded-bottom m-0" style="min-width: 280px;">
+                <a href="{% url 'maintenance_list' %}" class="dropdown-item d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="fw-normal mb-0">Maintenance requests</h6>
+                        <small>{{ notif_open_maintenance }} open request{% if notif_open_maintenance != 1 %}s{% endif %}</small>
+                    </div>
+                    {% if notif_open_maintenance > 0 %}<span class="badge bg-warning rounded-pill">{{ notif_open_maintenance }}</span>{% endif %}
+                </a>
+                <hr class="dropdown-divider">
+                <a href="{% url 'payment_list' %}?status=overdue" class="dropdown-item d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="fw-normal mb-0">Overdue payments</h6>
+                        <small>{{ notif_overdue_payments }} overdue payment{% if notif_overdue_payments != 1 %}s{% endif %}</small>
+                    </div>
+                    {% if notif_overdue_payments > 0 %}<span class="badge bg-danger rounded-pill">{{ notif_overdue_payments }}</span>{% endif %}
+                </a>
+                <hr class="dropdown-divider">
+                <a href="{% url 'lease_list' %}" class="dropdown-item d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="fw-normal mb-0">Leases expiring soon</h6>
+                        <small>{{ notif_expiring_leases }} lease{% if notif_expiring_leases != 1 %}s{% endif %} within 30 days</small>
+                    </div>
+                    {% if notif_expiring_leases > 0 %}<span class="badge bg-info rounded-pill">{{ notif_expiring_leases }}</span>{% endif %}
+                </a>
+                <hr class="dropdown-divider">
+                <a href="{% url 'maintenance_list' %}" class="dropdown-item text-center small">View all notifications</a>
+            </div>
+        </div>
+        <div class="nav-item dropdown">
+            <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
+                <img class="rounded-circle me-lg-2" src="{% static 'core/img/user.jpg' %}" alt="" style="width: 40px; height: 40px;">
+                <span class="d-none d-lg-inline-flex">{{ user.get_full_name|default:user.username }}</span>
+            </a>
+            <div class="dropdown-menu dropdown-menu-end bg-secondary border-0 rounded-0 rounded-bottom m-0">
+                <a href="{% url 'profile' %}" class="dropdown-item">My Profile</a>
+                <a href="{% url 'logout' %}" class="dropdown-item">Log Out</a>
+            </div>
+        </div>
+    </div>
+</nav>

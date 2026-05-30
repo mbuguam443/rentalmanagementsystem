@@ -1,0 +1,132 @@
+{% extends 'core/base.html' %}
+{% block title %}{{ property.name }}{% endblock %}
+{% block content %}
+<div class="container-fluid pt-4 px-4">
+    <div class="row g-4">
+        <div class="col-sm-12 col-xl-8">
+            <div class="bg-secondary rounded h-100 p-4">
+                <div class="d-flex align-items-center justify-content-between mb-4">
+                    <h6 class="mb-0">{{ property.name }}</h6>
+                    <div>
+                        <a href="{% url 'property_edit' property.pk %}" class="btn btn-info btn-sm">Edit</a>
+                        <a href="{% url 'property_list' %}" class="btn btn-secondary btn-sm">Back</a>
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-4 text-muted">Type</div>
+                    <div class="col-md-8">{{ property.property_type }}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-4 text-muted">Address</div>
+                    <div class="col-md-8">{{ property.address }}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-4 text-muted">Bedrooms / Bathrooms</div>
+                    <div class="col-md-8">{{ property.bedrooms }} / {{ property.bathrooms }}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-4 text-muted">Size</div>
+                    <div class="col-md-8">{{ property.size_sqft }} sq ft</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-4 text-muted">Rent Amount</div>
+                    <div class="col-md-8">KSh {{ property.rent_amount|floatformat:2 }}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-4 text-muted">Deposit</div>
+                    <div class="col-md-8">KSh {{ property.deposit|floatformat:2 }}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-4 text-muted">Status</div>
+                    <div class="col-md-8"><span class="badge bg-{% if property.status == 'occupied' %}success{% elif property.status == 'vacant' %}secondary{% else %}warning{% endif %}">{{ property.get_status_display }}</span></div>
+                </div>
+                {% if property.description %}
+                <div class="row mb-3">
+                    <div class="col-md-4 text-muted">Description</div>
+                    <div class="col-md-8">{{ property.description }}</div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        <div class="col-sm-12 col-xl-4">
+            <div class="bg-secondary rounded h-100 p-4">
+                <h6 class="mb-4">Quick Actions</h6>
+                <div class="d-grid gap-2">
+                    <a href="{% url 'lease_add' %}?property={{ property.pk }}" class="btn btn-primary">Create Lease</a>
+                    <a href="{% url 'payment_add' %}?property={{ property.pk }}" class="btn btn-success">Record Payment</a>
+                    <a href="{% url 'maintenance_add' %}?property={{ property.pk }}" class="btn btn-warning">Log Maintenance</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container-fluid pt-4 px-4">
+    <div class="row g-4">
+        <div class="col-sm-12 col-xl-6">
+            <div class="bg-secondary rounded h-100 p-4">
+                <h6 class="mb-4">Leases</h6>
+                <div class="table-responsive">
+                    <table class="table text-start align-middle table-bordered table-hover mb-0">
+                        <thead><tr class="text-white"><th>Tenant</th><th>Start</th><th>End</th><th>Status</th></tr></thead>
+                        <tbody>
+                            {% for l in leases %}
+                            <tr>
+                                <td>{{ l.tenant.name }}</td>
+                                <td>{{ l.start_date }}</td>
+                                <td>{{ l.end_date }}</td>
+                                <td><span class="badge bg-{% if l.status == 'active' %}success{% else %}secondary{% endif %}">{{ l.get_status_display }}</span></td>
+                            </tr>
+                            {% empty %}<tr><td colspan="4" class="text-muted">No leases</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-12 col-xl-6">
+            <div class="bg-secondary rounded h-100 p-4">
+                <h6 class="mb-4">Payment History</h6>
+                <div class="table-responsive">
+                    <table class="table text-start align-middle table-bordered table-hover mb-0">
+                        <thead><tr class="text-white"><th>Tenant</th><th>Amount</th><th>Date</th><th>Status</th></tr></thead>
+                        <tbody>
+                            {% for p in payments %}
+                            <tr>
+                                <td>{{ p.tenant.name }}</td>
+                                <td>KSh {{ p.amount|floatformat:0 }}</td>
+                                <td>{{ p.payment_date }}</td>
+                                <td><span class="badge bg-{% if p.status == 'paid' %}success{% elif p.status == 'overdue' %}danger{% else %}warning{% endif %}">{{ p.get_status_display }}</span></td>
+                            </tr>
+                            {% empty %}<tr><td colspan="4" class="text-muted">No payments</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container-fluid pt-4 px-4">
+    <div class="bg-secondary rounded h-100 p-4">
+        <h6 class="mb-4">Maintenance Requests</h6>
+        <div class="table-responsive">
+            <table class="table text-start align-middle table-bordered table-hover mb-0">
+                <thead><tr class="text-white"><th>Title</th><th>Priority</th><th>Status</th><th>Date</th></tr></thead>
+                <tbody>
+                    {% for m in maintenance_requests %}
+                    <tr>
+                        <td>{{ m.title }}</td>
+                        <td><span class="badge bg-{% if m.priority == 'high' or m.priority == 'urgent' %}danger{% elif m.priority == 'medium' %}warning{% else %}info{% endif %}">{{ m.get_priority_display }}</span></td>
+                        <td><span class="badge bg-{% if m.status == 'open' %}info{% elif m.status == 'in_progress' %}warning{% elif m.status == 'resolved' %}success{% else %}secondary{% endif %}">{{ m.get_status_display }}</span></td>
+                        <td>{{ m.created_at|date:"M j, Y" }}</td>
+                    </tr>
+                    {% empty %}<tr><td colspan="4" class="text-muted">No maintenance requests</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

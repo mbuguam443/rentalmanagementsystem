@@ -1,0 +1,68 @@
+{% extends 'core/base.html' %}
+{% block title %}Edit Lease{% endblock %}
+{% block content %}
+<div class="container-fluid pt-4 px-4">
+    <div class="row g-4">
+        <div class="col-sm-12 col-xl-8 mx-auto">
+            <div class="bg-secondary rounded h-100 p-4">
+                <h6 class="mb-4">Edit Lease: {{ lease.tenant.name }} - {{ lease.property.name }}</h6>
+                <form method="POST">
+                    {% csrf_token %}
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Property</label>
+                            <select class="form-select" name="property" required>
+                                {% for p in properties %}
+                                <option value="{{ p.pk }}" {% if lease.property.pk == p.pk %}selected{% endif %}>{{ p.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Tenant</label>
+                            <select class="form-select" name="tenant" required>
+                                {% for t in tenants %}
+                                <option value="{{ t.pk }}" {% if lease.tenant.pk == t.pk %}selected{% endif %}>{{ t.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Start Date</label>
+                            <input type="date" class="form-control" name="start_date" value="{{ lease.start_date|date:'Y-m-d' }}" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">End Date</label>
+                            <input type="date" class="form-control" name="end_date" value="{{ lease.end_date|date:'Y-m-d' }}" required>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <label class="form-label">Rent Amount (KSh)</label>
+                            <input type="number" class="form-control" name="rent_amount" value="{{ lease.rent_amount }}" step="0.01" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Deposit Paid (KSh)</label>
+                            <input type="number" class="form-control" name="deposit_paid" value="{{ lease.deposit_paid }}" step="0.01">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Status</label>
+                            <select class="form-select" name="status">
+                                <option value="active" {% if lease.status == 'active' %}selected{% endif %}>Active</option>
+                                <option value="expired" {% if lease.status == 'expired' %}selected{% endif %}>Expired</option>
+                                <option value="terminated" {% if lease.status == 'terminated' %}selected{% endif %}>Terminated</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Terms & Conditions</label>
+                        <textarea class="form-control" name="terms" rows="4">{{ lease.terms }}</textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Update Lease</button>
+                    <a href="{% url 'lease_list' %}" class="btn btn-secondary">Cancel</a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

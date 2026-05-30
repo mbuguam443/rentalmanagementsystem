@@ -1,0 +1,69 @@
+{% extends 'core/base.html' %}
+{% block title %}Send M-Pesa STK Push{% endblock %}
+{% block content %}
+<div class="container-fluid pt-4 px-4">
+    <div class="row g-4">
+        <div class="col-sm-12 col-xl-8 mx-auto">
+            <div class="bg-secondary rounded h-100 p-4">
+                <h6 class="mb-4"><i class="fa fa-mobile-alt me-2"></i>Send M-Pesa Payment Request</h6>
+                <p class="text-muted small mb-4">This simulates an STK Push to the tenant's phone. They will receive a prompt to enter their M-Pesa PIN.</p>
+                <form method="POST">
+                    {% csrf_token %}
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Tenant</label>
+                            <select class="form-select" name="tenant" required>
+                                <option value="">Select Tenant</option>
+                                {% for t in tenants %}
+                                <option value="{{ t.pk }}">{{ t.name }} - {{ t.phone }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Property</label>
+                            <select class="form-select" name="property" required>
+                                <option value="">Select Property</option>
+                                {% for p in properties %}
+                                <option value="{{ p.pk }}">{{ p.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Lease (optional)</label>
+                            <select class="form-select" name="lease">
+                                <option value="">No Lease</option>
+                                {% for l in leases %}
+                                <option value="{{ l.pk }}">{{ l.tenant.name }} - {{ l.property.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Payment Type</label>
+                            <select class="form-select" name="payment_type">
+                                <option value="rent">Rent</option>
+                                <option value="deposit">Deposit</option>
+                                <option value="late_fee">Late Fee</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Amount (KSh)</label>
+                            <input type="number" class="form-control" name="amount" step="0.01" min="1" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Phone Number</label>
+                            <input type="text" class="form-control" name="phone" placeholder="2547XXXXXXXX" required>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary"><i class="fa fa-paper-plane me-2"></i>Send STK Push</button>
+                    <a href="{% url 'mpesa_list' %}" class="btn btn-secondary">Cancel</a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

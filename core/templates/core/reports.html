@@ -1,0 +1,118 @@
+{% extends 'core/base.html' %}
+{% block title %}Reports{% endblock %}
+{% block content %}
+<div class="container-fluid pt-4 px-4">
+    <div class="row g-4">
+        <div class="col-sm-6 col-xl-3">
+            <div class="bg-secondary rounded d-flex align-items-center justify-content-between p-4">
+                <i class="fa fa-home fa-3x text-primary"></i>
+                <div class="ms-3 text-end">
+                    <p class="mb-2">Properties</p>
+                    <h6 class="mb-0">{{ total_properties }}</h6>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-xl-3">
+            <div class="bg-secondary rounded d-flex align-items-center justify-content-between p-4">
+                <i class="fa fa-check-circle fa-3x text-success"></i>
+                <div class="ms-3 text-end">
+                    <p class="mb-2">Occupied</p>
+                    <h6 class="mb-0">{{ occupied }}</h6>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-xl-3">
+            <div class="bg-secondary rounded d-flex align-items-center justify-content-between p-4">
+                <i class="fa fa-times-circle fa-3x text-secondary"></i>
+                <div class="ms-3 text-end">
+                    <p class="mb-2">Vacant</p>
+                    <h6 class="mb-0">{{ vacant }}</h6>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-xl-3">
+            <div class="bg-secondary rounded d-flex align-items-center justify-content-between p-4">
+                <i class="fa fa-money-bill-wave fa-3x text-primary"></i>
+                <div class="ms-3 text-end">
+                    <p class="mb-2">Revenue</p>
+                    <h6 class="mb-0">KSh {{ total_collected|floatformat:0 }}</h6>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container-fluid pt-4 px-4">
+    <div class="row g-4">
+        <div class="col-sm-12 col-xl-6">
+            <div class="bg-secondary text-center rounded p-4">
+                <div class="d-flex align-items-center justify-content-between mb-4">
+                    <h6 class="mb-0">Occupancy Overview</h6>
+                </div>
+                <canvas id="report-occupancy-chart"></canvas>
+            </div>
+        </div>
+        <div class="col-sm-12 col-xl-6">
+            <div class="bg-secondary rounded h-100 p-4">
+                <h6 class="mb-4">Summary</h6>
+                <div class="row mb-2"><div class="col-sm-6 text-muted">Total Properties</div><div class="col-sm-6">{{ total_properties }}</div></div>
+                <div class="row mb-2"><div class="col-sm-6 text-muted">Occupied</div><div class="col-sm-6">{{ occupied }} ({% widthratio occupied total_properties 100 %}%)</div></div>
+                <div class="row mb-2"><div class="col-sm-6 text-muted">Vacant</div><div class="col-sm-6">{{ vacant }} ({% widthratio vacant total_properties 100 %}%)</div></div>
+                <div class="row mb-2"><div class="col-sm-6 text-muted">Active Tenants</div><div class="col-sm-6">{{ total_tenants }}</div></div>
+                <div class="row mb-2"><div class="col-sm-6 text-muted">Total Revenue Collected</div><div class="col-sm-6">KSh {{ total_collected|floatformat:2 }}</div></div>
+                <div class="row mb-2"><div class="col-sm-6 text-muted">Maintenance Costs</div><div class="col-sm-6">KSh {{ total_maintenance_cost|floatformat:2 }}</div></div>
+                <div class="row mb-2"><div class="col-sm-6 text-muted">Net Income</div><div class="col-sm-6 fw-bold">KSh {{ total_collected|add:total_maintenance_cost|floatformat:2 }}</div></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container-fluid pt-4 px-4">
+    <div class="bg-secondary rounded h-100 p-4">
+        <div class="d-flex align-items-center justify-content-between mb-4">
+            <h6 class="mb-0">Property Performance</h6>
+        </div>
+        <div class="table-responsive">
+            <table class="table text-start align-middle table-bordered table-hover mb-0">
+                <thead>
+                    <tr class="text-white">
+                        <th>Property</th>
+                        <th>Status</th>
+                        <th>Rent</th>
+                        <th>Total Payments</th>
+                        <th>Paid Amount</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for p in properties %}
+                    <tr>
+                        <td>{{ p.name }}</td>
+                        <td><span class="badge bg-{% if p.status == 'occupied' %}success{% elif p.status == 'vacant' %}secondary{% else %}warning{% endif %}">{{ p.get_status_display }}</span></td>
+                        <td>KSh {{ p.rent_amount|floatformat:0 }}</td>
+                        <td>{{ p.payment_count }}</td>
+                        <td>KSh {{ p.total_paid|default:0|floatformat:0 }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+var ctx = document.getElementById('report-occupancy-chart').getContext('2d');
+new Chart(ctx, {
+    type: 'pie',
+    data: {
+        labels: ['Occupied ({{ occupied }})', 'Vacant ({{ vacant }})'],
+        datasets: [{
+            data: [{{ occupied }}, {{ vacant }}],
+            backgroundColor: ['rgba(235, 22, 22, .7)', 'rgba(108, 114, 147, .5)']
+        }]
+    },
+    options: { responsive: true }
+});
+</script>
+{% endblock %}

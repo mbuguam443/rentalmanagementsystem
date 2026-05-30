@@ -1,0 +1,115 @@
+{% extends 'core/base.html' %}
+{% block title %}M-Pesa{% endblock %}
+{% block content %}
+
+{# ═══════ C2B Section (Tenant Pays via Phone Menu) ═══════ #}
+<div class="container-fluid pt-4 px-4">
+    <div class="bg-secondary rounded p-4 mb-4">
+        <div class="d-flex align-items-center justify-content-between mb-3">
+            <h6 class="mb-0"><i class="fa fa-phone-alt me-2"></i>C2B — Tenant Pays via M-Pesa Menu</h6>
+            <div class="d-flex gap-2">
+                <a href="{% url 'mpesa_c2b_simulate_api' %}" class="btn btn-success btn-sm">
+                    <i class="fa fa-cloud-upload-alt me-1"></i>Simulate API
+                </a>
+                <a href="{% url 'mpesa_c2b_register' %}" class="btn btn-outline-primary btn-sm"
+                   onclick="return confirm('Register URLs with Safaricom sandbox?')">
+                    <i class="fa fa-link me-1"></i>Register URLs
+                </a>
+            </div>
+        </div>
+        <p class="text-muted small mb-3">
+            Tell tenants to go to <strong>M-Pesa → Lipa na M-Pesa → Pay Bill</strong>,
+            enter <strong>Business {{ c2b_shortcode }}</strong>, and use their <strong>phone number</strong> as the Account number.
+            Payments are auto-recorded.
+        </p>
+        <div class="table-responsive">
+            <table class="table text-start align-middle table-bordered table-hover mb-0 small">
+                <thead>
+                    <tr class="text-white">
+                        <th>Tenant</th>
+                        <th>Phone (Account No.)</th>
+                        <th>Active Lease</th>
+                        <th>Rent Amount</th>
+                        <th>M-Pesa Paid</th>
+                        <th>Balance</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for t in tenants %}
+                    <tr>
+                        <td>{{ t.name }}</td>
+                        <td><code class="text-info bg-dark p-1 rounded">{{ t.phone }}</code></td>
+                        <td>{% if t.lease_count %}<span class="text-success">Active{% else %}—{% endif %}</td>
+                        <td>{% if t.total_owed %}KSh {{ t.total_owed|floatformat:0 }}{% else %}—{% endif %}</td>
+                        <td>{% if t.total_paid_c2b %}KSh {{ t.total_paid_c2b|floatformat:0 }}{% else %}—{% endif %}</td>
+                        <td>{% if t.total_owed %}KSh {{ t.total_owed|floatformat:0 }}{% else %}—{% endif %}</td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="6" class="text-muted">No active tenants</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+{# ═══════ STK Push Transactions ═══════ #}
+<div class="container-fluid px-4 pb-4">
+    <div class="bg-secondary text-center rounded p-4">
+        <div class="d-flex align-items-center justify-content-between mb-4">
+            <h6 class="mb-0"><i class="fa fa-mobile-alt me-2"></i>STK Push Transactions</h6>
+            <a href="{% url 'mpesa_initiate' %}" class="btn btn-primary btn-sm"><i class="fa fa-paper-plane me-2"></i>Send STK Push</a>
+        </div>
+        <div class="table-responsive">
+            <table class="table text-start align-middle table-bordered table-hover mb-0">
+                <thead>
+                    <tr class="text-white">
+                        <th>Tenant</th>
+                        <th>Property</th>
+                        <th>Amount</th>
+                        <th>Phone</th>
+                        <th>Receipt</th>
+                        <th>Status</th>
+                        <th>Date</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for t in transactions %}
+                    <tr>
+                        <td>{{ t.tenant.name }}</td>
+                        <td>{{ t.property.name|truncatechars:20 }}</td>
+                        <td>KSh {{ t.amount|floatformat:0 }}</td>
+                        <td>{{ t.phone }}</td>
+                        <td>{{ t.mpesa_receipt_number|default:'-' }}</td>
+                        <td>
+                            {% if t.status == 'pending' %}
+                                <span class="badge bg-warning text-dark">Pending</span>
+                            {% elif t.status == 'completed' %}
+                                <span class="badge bg-success">Completed</span>
+                            {% elif t.status == 'failed' %}
+                                <span class="badge bg-danger">Failed</span>
+                            {% elif t.status == 'cancelled' %}
+                                <span class="badge bg-secondary">Cancelled</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ t.created_at|date:"d M Y H:i" }}</td>
+                        <td>
+                            {% if t.status == 'pending' %}
+                                <a class="btn btn-sm btn-success" href="{% url 'mpesa_confirm' t.pk %}"><i class="fa fa-check"></i></a>
+                                <a class="btn btn-sm btn-danger" href="{% url 'mpesa_fail' t.pk %}" onclick="return confirm('Mark as failed?')"><i class="fa fa-times"></i></a>
+                                <a class="btn btn-sm btn-secondary" href="{% url 'mpesa_cancel' t.pk %}" onclick="return confirm('Cancel this transaction?')"><i class="fa fa-ban"></i></a>
+                            {% elif t.status == 'completed' and t.payment %}
+                                <a class="btn btn-sm btn-info" href="{% url 'payment_edit' t.payment.pk %}">View Payment</a>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="8" class="text-muted">No STK Push transactions yet</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

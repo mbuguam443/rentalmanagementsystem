@@ -1,0 +1,25 @@
+{% extends 'core/base.html' %}
+{% block title %}Profile{% endblock %}
+{% block content %}
+<div class="container-fluid pt-4 px-4">
+    <div class="row g-4">
+        <div class="col-sm-12 col-xl-6">
+            <div class="bg-secondary rounded h-100 p-4">
+                <h6 class="mb-4">My Profile</h6>
+                <div class="d-flex align-items-center mb-3">
+                    <img class="rounded-circle" src="/static/core/img/user.jpg" alt="" style="width: 80px; height: 80px;">
+                    <div class="ms-3">
+                        <h5 class="mb-1">{{ user.get_full_name|default:user.username }}</h5>
+                        <p class="mb-0 text-muted">{{ user.email }}</p>
+                    </div>
+                </div>
+                <hr>
+                <div class="row mb-2"><div class="col-sm-4 text-muted">Username</div><div class="col-sm-8">{{ user.username }}</div></div>
+                <div class="row mb-2"><div class="col-sm-4 text-muted">Email</div><div class="col-sm-8">{{ user.email }}</div></div>
+                <div class="row mb-2"><div class="col-sm-4 text-muted">Last Login</div><div class="col-sm-8">{{ user.last_login|date:"M j, Y H:i" }}</div></div>
+                <div class="row mb-2"><div class="col-sm-4 text-muted">Member Since</div><div class="col-sm-8">{{ user.date_joined|date:"M j, Y" }}</div></div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

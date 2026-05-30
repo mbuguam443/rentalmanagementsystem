@@ -1,0 +1,75 @@
+{% extends 'core/base.html' %}
+{% block title %}Edit Property{% endblock %}
+{% block content %}
+<div class="container-fluid pt-4 px-4">
+    <div class="row g-4">
+        <div class="col-sm-12 col-xl-8 mx-auto">
+            <div class="bg-secondary rounded h-100 p-4">
+                <h6 class="mb-4">Edit Property: {{ property.name }}</h6>
+                <form method="POST">
+                    {% csrf_token %}
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Property Name</label>
+                            <input type="text" class="form-control" name="name" value="{{ property.name }}" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Property Type</label>
+                            <select class="form-select" name="property_type">
+                                {% for t in property.PROPERTY_TYPES %}{{ t.0 }}{% endfor %}
+                                <option value="Apartment" {% if property.property_type == 'Apartment' %}selected{% endif %}>Apartment</option>
+                                <option value="House" {% if property.property_type == 'House' %}selected{% endif %}>House</option>
+                                <option value="Studio" {% if property.property_type == 'Studio' %}selected{% endif %}>Studio</option>
+                                <option value="Villa" {% if property.property_type == 'Villa' %}selected{% endif %}>Villa</option>
+                                <option value="Commercial" {% if property.property_type == 'Commercial' %}selected{% endif %}>Commercial</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Address</label>
+                        <textarea class="form-control" name="address" rows="2" required>{{ property.address }}</textarea>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-3">
+                            <label class="form-label">Bedrooms</label>
+                            <input type="number" class="form-control" name="bedrooms" value="{{ property.bedrooms }}" min="0">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Bathrooms</label>
+                            <input type="number" class="form-control" name="bathrooms" value="{{ property.bathrooms }}" min="0">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Size (sq ft)</label>
+                            <input type="number" class="form-control" name="size_sqft" value="{{ property.size_sqft }}" min="0">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Status</label>
+                            <select class="form-select" name="status">
+                                <option value="vacant" {% if property.status == 'vacant' %}selected{% endif %}>Vacant</option>
+                                <option value="occupied" {% if property.status == 'occupied' %}selected{% endif %}>Occupied</option>
+                                <option value="under_maintenance" {% if property.status == 'under_maintenance' %}selected{% endif %}>Under Maintenance</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Rent Amount (KSh)</label>
+                            <input type="number" class="form-control" name="rent_amount" value="{{ property.rent_amount }}" step="0.01" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Deposit (KSh)</label>
+                            <input type="number" class="form-control" name="deposit" value="{{ property.deposit }}" step="0.01">
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Description</label>
+                        <textarea class="form-control" name="description" rows="3">{{ property.description }}</textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Update Property</button>
+                    <a href="{% url 'property_list' %}" class="btn btn-secondary">Cancel</a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

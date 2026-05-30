@@ -1,0 +1,74 @@
+{% extends 'core/base.html' %}
+{% block title %}Add Property{% endblock %}
+{% block content %}
+<div class="container-fluid pt-4 px-4">
+    <div class="row g-4">
+        <div class="col-sm-12 col-xl-8 mx-auto">
+            <div class="bg-secondary rounded h-100 p-4">
+                <h6 class="mb-4">Add New Property</h6>
+                <form method="POST">
+                    {% csrf_token %}
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Property Name</label>
+                            <input type="text" class="form-control" name="name" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Property Type</label>
+                            <select class="form-select" name="property_type">
+                                <option value="Apartment">Apartment</option>
+                                <option value="House">House</option>
+                                <option value="Studio">Studio</option>
+                                <option value="Villa">Villa</option>
+                                <option value="Commercial">Commercial</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Address</label>
+                        <textarea class="form-control" name="address" rows="2" required></textarea>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-3">
+                            <label class="form-label">Bedrooms</label>
+                            <input type="number" class="form-control" name="bedrooms" value="1" min="0">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Bathrooms</label>
+                            <input type="number" class="form-control" name="bathrooms" value="1" min="0">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Size (sq ft)</label>
+                            <input type="number" class="form-control" name="size_sqft" value="0" min="0">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Status</label>
+                            <select class="form-select" name="status">
+                                <option value="vacant">Vacant</option>
+                                <option value="occupied">Occupied</option>
+                                <option value="under_maintenance">Under Maintenance</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Rent Amount (KSh)</label>
+                            <input type="number" class="form-control" name="rent_amount" step="0.01" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Deposit (KSh)</label>
+                            <input type="number" class="form-control" name="deposit" step="0.01" value="0">
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Description</label>
+                        <textarea class="form-control" name="description" rows="3"></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Save Property</button>
+                    <a href="{% url 'property_list' %}" class="btn btn-secondary">Cancel</a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

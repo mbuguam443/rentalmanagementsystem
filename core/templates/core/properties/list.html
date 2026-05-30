@@ -1,0 +1,56 @@
+{% extends 'core/base.html' %}
+{% block title %}Properties{% endblock %}
+{% block content %}
+<div class="container-fluid pt-4 px-4">
+    <div class="bg-secondary text-center rounded p-4">
+        <div class="d-flex align-items-center justify-content-between mb-4">
+            <h6 class="mb-0">All Properties</h6>
+            <a href="{% url 'property_add' %}" class="btn btn-primary btn-sm"><i class="fa fa-plus me-2"></i>Add Property</a>
+        </div>
+        <form class="d-flex mb-3 gap-2" method="GET">
+            <input class="form-control bg-dark border-0 flex-grow-1" type="search" name="q" placeholder="Search properties..." value="{{ request.GET.q }}">
+            <select name="status" class="form-select bg-dark border-0 w-auto">
+                <option value="">All Status</option>
+                <option value="occupied" {% if request.GET.status == 'occupied' %}selected{% endif %}>Occupied</option>
+                <option value="vacant" {% if request.GET.status == 'vacant' %}selected{% endif %}>Vacant</option>
+                <option value="under_maintenance" {% if request.GET.status == 'under_maintenance' %}selected{% endif %}>Under Maintenance</option>
+            </select>
+            <button class="btn btn-primary" type="submit"><i class="fa fa-search"></i></button>
+        </form>
+        <div class="table-responsive">
+            <table class="table text-start align-middle table-bordered table-hover mb-0">
+                <thead>
+                    <tr class="text-white">
+                        <th>Name</th>
+                        <th>Type</th>
+                        <th>Address</th>
+                        <th>Beds/Baths</th>
+                        <th>Rent</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for p in properties %}
+                    <tr>
+                        <td>{{ p.name }}</td>
+                        <td>{{ p.property_type }}</td>
+                        <td>{{ p.address|truncatechars:30 }}</td>
+                        <td>{{ p.bedrooms }} / {{ p.bathrooms }}</td>
+                        <td>KSh {{ p.rent_amount|floatformat:0 }}</td>
+                        <td><span class="badge bg-{% if p.status == 'occupied' %}success{% elif p.status == 'vacant' %}secondary{% else %}warning{% endif %}">{{ p.get_status_display }}</span></td>
+                        <td>
+                            <a class="btn btn-sm btn-primary" href="{% url 'property_view' p.pk %}">View</a>
+                            <a class="btn btn-sm btn-info" href="{% url 'property_edit' p.pk %}">Edit</a>
+                            <a class="btn btn-sm btn-danger" href="{% url 'property_delete' p.pk %}" onclick="return confirm('Delete this property?')">Delete</a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="7" class="text-muted">No properties found</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

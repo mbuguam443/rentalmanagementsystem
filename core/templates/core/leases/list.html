@@ -1,0 +1,55 @@
+{% extends 'core/base.html' %}
+{% block title %}Leases{% endblock %}
+{% block content %}
+<div class="container-fluid pt-4 px-4">
+    <div class="bg-secondary text-center rounded p-4">
+        <div class="d-flex align-items-center justify-content-between mb-4">
+            <h6 class="mb-0">All Leases</h6>
+            <a href="{% url 'lease_add' %}" class="btn btn-primary btn-sm"><i class="fa fa-plus me-2"></i>Create Lease</a>
+        </div>
+        <form class="d-flex mb-3 gap-2" method="GET">
+            <input class="form-control bg-dark border-0 flex-grow-1" type="search" name="q" placeholder="Search by tenant or property..." value="{{ request.GET.q }}">
+            <select name="status" class="form-select bg-dark border-0 w-auto">
+                <option value="">All Status</option>
+                <option value="active" {% if request.GET.status == 'active' %}selected{% endif %}>Active</option>
+                <option value="expired" {% if request.GET.status == 'expired' %}selected{% endif %}>Expired</option>
+                <option value="terminated" {% if request.GET.status == 'terminated' %}selected{% endif %}>Terminated</option>
+            </select>
+            <button class="btn btn-primary" type="submit"><i class="fa fa-search"></i></button>
+        </form>
+        <div class="table-responsive">
+            <table class="table text-start align-middle table-bordered table-hover mb-0">
+                <thead>
+                    <tr class="text-white">
+                        <th>Tenant</th>
+                        <th>Property</th>
+                        <th>Start</th>
+                        <th>End</th>
+                        <th>Rent</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for l in leases %}
+                    <tr>
+                        <td>{{ l.tenant.name }}</td>
+                        <td>{{ l.property.name }}</td>
+                        <td>{{ l.start_date }}</td>
+                        <td>{{ l.end_date }}</td>
+                        <td>KSh {{ l.rent_amount|floatformat:0 }}</td>
+                        <td><span class="badge bg-{% if l.status == 'active' %}success{% elif l.status == 'expired' %}secondary{% else %}danger{% endif %}">{{ l.get_status_display }}</span></td>
+                        <td>
+                            <a class="btn btn-sm btn-info" href="{% url 'lease_edit' l.pk %}">Edit</a>
+                            <a class="btn btn-sm btn-danger" href="{% url 'lease_delete' l.pk %}" onclick="return confirm('Delete this lease?')">Delete</a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="7" class="text-muted">No leases found</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

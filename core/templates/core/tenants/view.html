@@ -1,0 +1,145 @@
+{% extends 'core/base.html' %}
+{% block title %}{{ tenant.name }}{% endblock %}
+{% block content %}
+<div class="container-fluid pt-4 px-4">
+    <div class="row g-4">
+        <div class="col-sm-12 col-xl-8">
+            <div class="bg-secondary rounded h-100 p-4">
+                <div class="d-flex align-items-center justify-content-between mb-4">
+                    <h6 class="mb-0">{{ tenant.name }}</h6>
+                    <div>
+                        <a href="{% url 'tenant_edit' tenant.pk %}" class="btn btn-info btn-sm">Edit</a>
+                        <a href="{% url 'tenant_list' %}" class="btn btn-secondary btn-sm">Back</a>
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-4 text-muted">Email</div>
+                    <div class="col-md-8">{{ tenant.email }}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-4 text-muted">Phone</div>
+                    <div class="col-md-8">{{ tenant.phone }}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-4 text-muted">ID Number</div>
+                    <div class="col-md-8">{{ tenant.id_number|default:'-' }}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-4 text-muted">Occupation</div>
+                    <div class="col-md-8">{{ tenant.occupation|default:'-' }}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-4 text-muted">Address</div>
+                    <div class="col-md-8">{{ tenant.address|default:'-' }}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-4 text-muted">Status</div>
+                    <div class="col-md-8"><span class="badge bg-{% if tenant.status == 'active' %}success{% else %}secondary{% endif %}">{{ tenant.get_status_display }}</span></div>
+                </div>
+                {% if tenant.notes %}
+                <div class="row mb-3">
+                    <div class="col-md-4 text-muted">Notes</div>
+                    <div class="col-md-8">{{ tenant.notes }}</div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        <div class="col-sm-12 col-xl-4">
+            <div class="bg-secondary rounded h-100 p-4">
+                <h6 class="mb-4">Account Summary</h6>
+                {% if active_lease %}
+                <div class="mb-3">
+                    <p class="mb-1 text-muted">Current Property</p>
+                    <h6>{{ active_lease.property.name }}</h6>
+                </div>
+                <div class="mb-3">
+                    <p class="mb-1 text-muted">Monthly Rent</p>
+                    <h6>KSh {{ active_lease.rent_amount|floatformat:2 }}</h6>
+                </div>
+                <div class="mb-3">
+                    <p class="mb-1 text-muted">Balance</p>
+                    <h6 class="{% if balance > 0 %}text-danger{% else %}text-success{% endif %}">
+                        KSh {{ balance|floatformat:2 }}
+                    </h6>
+                </div>
+                {% else %}
+                <p class="text-muted">No active lease</p>
+                <a href="{% url 'lease_add' %}?tenant={{ tenant.pk }}" class="btn btn-primary btn-sm w-100">Create Lease</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container-fluid pt-4 px-4">
+    <div class="row g-4">
+        <div class="col-sm-12 col-xl-6">
+            <div class="bg-secondary rounded h-100 p-4">
+                <h6 class="mb-4">Lease History</h6>
+                <div class="table-responsive">
+                    <table class="table text-start align-middle table-bordered table-hover mb-0">
+                        <thead><tr class="text-white"><th>Property</th><th>Start</th><th>End</th><th>Rent</th><th>Status</th></tr></thead>
+                        <tbody>
+                            {% for l in leases %}
+                            <tr>
+                                <td>{{ l.property.name }}</td>
+                                <td>{{ l.start_date }}</td>
+                                <td>{{ l.end_date }}</td>
+                                <td>KSh {{ l.rent_amount|floatformat:0 }}</td>
+                                <td><span class="badge bg-{% if l.status == 'active' %}success{% else %}secondary{% endif %}">{{ l.get_status_display }}</span></td>
+                            </tr>
+                            {% empty %}<tr><td colspan="5" class="text-muted">No leases</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-12 col-xl-6">
+            <div class="bg-secondary rounded h-100 p-4">
+                <h6 class="mb-4">Payment History</h6>
+                <div class="table-responsive">
+                    <table class="table text-start align-middle table-bordered table-hover mb-0">
+                        <thead><tr class="text-white"><th>Amount</th><th>Date</th><th>Method</th><th>Reference</th><th>Status</th></tr></thead>
+                        <tbody>
+                            {% for p in payments %}
+                            <tr>
+                                <td>KSh {{ p.amount|floatformat:0 }}</td>
+                                <td>{{ p.payment_date }}</td>
+                                <td>{{ p.method }}</td>
+                                <td>{{ p.reference|default:'-' }}</td>
+                                <td><span class="badge bg-{% if p.status == 'paid' %}success{% elif p.status == 'overdue' %}danger{% else %}warning{% endif %}">{{ p.get_status_display }}</span></td>
+                            </tr>
+                            {% empty %}<tr><td colspan="5" class="text-muted">No payments</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container-fluid pt-4 px-4">
+    <div class="bg-secondary rounded h-100 p-4">
+        <h6 class="mb-4">Maintenance Requests</h6>
+        <div class="table-responsive">
+            <table class="table text-start align-middle table-bordered table-hover mb-0">
+                <thead><tr class="text-white"><th>Title</th><th>Property</th><th>Priority</th><th>Status</th><th>Date</th></tr></thead>
+                <tbody>
+                    {% for m in maintenance_requests %}
+                    <tr>
+                        <td>{{ m.title }}</td>
+                        <td>{{ m.property.name }}</td>
+                        <td><span class="badge bg-{% if m.priority == 'high' or m.priority == 'urgent' %}danger{% elif m.priority == 'medium' %}warning{% else %}info{% endif %}">{{ m.get_priority_display }}</span></td>
+                        <td><span class="badge bg-{% if m.status == 'open' %}info{% elif m.status == 'in_progress' %}warning{% elif m.status == 'resolved' %}success{% else %}secondary{% endif %}">{{ m.get_status_display }}</span></td>
+                        <td>{{ m.created_at|date:"M j, Y" }}</td>
+                    </tr>
+                    {% empty %}<tr><td colspan="5" class="text-muted">No maintenance requests</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

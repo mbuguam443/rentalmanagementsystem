@@ -1,0 +1,58 @@
+{% extends 'core/base.html' %}
+{% block title %}Payments{% endblock %}
+{% block content %}
+<div class="container-fluid pt-4 px-4">
+    <div class="bg-secondary text-center rounded p-4">
+        <div class="d-flex align-items-center justify-content-between mb-4">
+            <h6 class="mb-0">All Payments</h6>
+            <a href="{% url 'payment_add' %}" class="btn btn-primary btn-sm"><i class="fa fa-plus me-2"></i>Record Payment</a>
+        </div>
+        <form class="d-flex mb-3 gap-2" method="GET">
+            <input class="form-control bg-dark border-0 flex-grow-1" type="search" name="q" placeholder="Search by tenant or reference..." value="{{ request.GET.q }}">
+            <select name="status" class="form-select bg-dark border-0 w-auto">
+                <option value="">All Status</option>
+                <option value="paid" {% if request.GET.status == 'paid' %}selected{% endif %}>Paid</option>
+                <option value="partial" {% if request.GET.status == 'partial' %}selected{% endif %}>Partial</option>
+                <option value="overdue" {% if request.GET.status == 'overdue' %}selected{% endif %}>Overdue</option>
+                <option value="pending" {% if request.GET.status == 'pending' %}selected{% endif %}>Pending</option>
+            </select>
+            <button class="btn btn-primary" type="submit"><i class="fa fa-search"></i></button>
+        </form>
+        <div class="table-responsive">
+            <table class="table text-start align-middle table-bordered table-hover mb-0">
+                <thead>
+                    <tr class="text-white">
+                        <th>Tenant</th>
+                        <th>Property</th>
+                        <th>Amount</th>
+                        <th>Date</th>
+                        <th>Method</th>
+                        <th>Reference</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for p in payments %}
+                    <tr>
+                        <td>{{ p.tenant.name }}</td>
+                        <td>{{ p.property.name|truncatechars:20 }}</td>
+                        <td>KSh {{ p.amount|floatformat:0 }}</td>
+                        <td>{{ p.payment_date }}</td>
+                        <td>{{ p.method }}</td>
+                        <td>{{ p.reference|default:'-' }}</td>
+                        <td><span class="badge bg-{% if p.status == 'paid' %}success{% elif p.status == 'overdue' %}danger{% else %}warning{% endif %}">{{ p.get_status_display }}</span></td>
+                        <td>
+                            <a class="btn btn-sm btn-info" href="{% url 'payment_edit' p.pk %}">Edit</a>
+                            <a class="btn btn-sm btn-danger" href="{% url 'payment_delete' p.pk %}" onclick="return confirm('Delete this payment?')">Delete</a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="8" class="text-muted">No payments found</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
