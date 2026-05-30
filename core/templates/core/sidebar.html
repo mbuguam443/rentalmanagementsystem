@@ -42,9 +42,12 @@
             <a href="{% url 'profile' %}" class="nav-item nav-link {% if request.resolver_match.url_name == 'profile' %}active{% endif %}">
                 <i class="fa fa-user-cog me-2"></i>Profile
             </a>
-            <a href="{% url 'logout' %}" class="nav-item nav-link">
-                <i class="fa fa-sign-out-alt me-2"></i>Logout
-            </a>
+            <form action="{% url 'logout' %}" method="post" class="d-inline">
+                {% csrf_token %}
+                <button type="submit" class="nav-item nav-link btn btn-link text-start border-0 w-100" style="padding: 0 25px;">
+                    <i class="fa fa-sign-out-alt me-2"></i>Logout
+                </button>
+            </form>
         </div>
     </nav>
 </div>
