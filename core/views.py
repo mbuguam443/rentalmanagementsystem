@@ -479,10 +479,6 @@ from django.http import JsonResponse
 from .daraja import stk_push
 
 
-def generate_receipt():
-    return 'MPS' + ''.join(random.choices(string.ascii_uppercase + string.digits, k=7))
-
-
 @login_required
 def mpesa_list(request):
     transactions = MpesaTransaction.objects.all()
@@ -551,35 +547,15 @@ def mpesa_initiate(request):
 @login_required
 def mpesa_confirm(request, pk):
     txn = get_object_or_404(MpesaTransaction, pk=pk)
-    if request.method == 'POST':
-        if txn.status != 'pending':
-            messages.warning(request, 'Transaction already processed.')
-            return redirect('mpesa_list')
-
-        receipt = generate_receipt()
-        payment = Payment.objects.create(
-            tenant=txn.tenant,
-            property=txn.property,
-            lease=txn.lease,
-            amount=txn.amount,
-            payment_date=timezone.now().date(),
-            due_date=timezone.now().date(),
-            method='M-Pesa',
-            reference=receipt,
-            payment_type=txn.payment_type,
-            status='paid',
-            notes=f'M-Pesa ({txn.phone}) - {receipt}',
-        )
-        txn.mpesa_receipt_number = receipt
-        txn.result_code = 0
-        txn.result_desc = 'The service request is processed successfully.'
-        txn.status = 'completed'
-        txn.completed_at = timezone.now()
-        txn.payment = payment
-        txn.save()
-        messages.success(request, f'Payment confirmed! M-Pesa receipt: {receipt}')
+    if txn.status == 'completed':
+        messages.success(request, 'Transaction completed successfully.')
         return redirect('mpesa_list')
-
+    if txn.status == 'failed':
+        messages.warning(request, 'Transaction failed. Please try again.')
+        return redirect('mpesa_list')
+    if txn.status == 'cancelled':
+        messages.warning(request, 'Transaction was cancelled.')
+        return redirect('mpesa_list')
     return render(request, 'core/mpesa/confirm.html', {'txn': txn})
 
 
