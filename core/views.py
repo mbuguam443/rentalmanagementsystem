@@ -316,7 +316,7 @@ def lease_delete(request, pk):
 
 @login_required
 def payment_list(request):
-    payments = Payment.objects.all()
+    payments = Payment.objects.all().order_by('-payment_date', '-id')
     query = request.GET.get('q')
     status_filter = request.GET.get('status')
     if query:
